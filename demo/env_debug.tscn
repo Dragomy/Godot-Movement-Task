@@ -1,0 +1,57 @@
+[gd_scene load_steps=8 format=3 uid="uid://fy1bqgwt7u6e"]
+
+[ext_resource type="PackedScene" uid="uid://6ytyk46r6vid" path="res://demo/cha_player.tscn" id="2_hoij1"]
+[ext_resource type="Material" uid="uid://8fcnk63exatp" path="res://granite.tres" id="2_trlxf"]
+
+[sub_resource type="Environment" id="Environment_qilpa"]
+background_mode = 1
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_7afi7"]
+size = Vector2(50, 50)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_s85pk"]
+size = Vector3(50, 0.5, 50)
+
+[sub_resource type="BoxMesh" id="BoxMesh_vunq7"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ksxi4"]
+
+[node name="env_debug" type="Node3D"]
+
+[node name="Label3D" type="Label3D" parent="."]
+transform = Transform3D(0.0200525, 0, 0.999799, 0, 1, 0, -0.999799, 0, 0.0200525, 0, 1.9, 0)
+billboard = 2
+text = "Light"
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4289, 0)
+light_energy = 3.0
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_qilpa")
+
+[node name="cha_player" parent="." instance=ExtResource("2_hoij1")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 6, 0, 0)
+
+[node name="bottom" type="StaticBody3D" parent="."]
+
+[node name="mesh" type="MeshInstance3D" parent="bottom"]
+material_override = ExtResource("2_trlxf")
+mesh = SubResource("PlaneMesh_7afi7")
+skeleton = NodePath("../..")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="bottom"]
+shape = SubResource("BoxShape3D_s85pk")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.875591, 0.483053, 0, -0.483053, 0.875591, 0, 4.86449, 0)
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+transform = Transform3D(3.795, 0, 0, 0, 0.365302, 3.74897, 0, -0.136581, 10.0271, 0, 1.6297, 7.50024)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D"]
+material_override = ExtResource("2_trlxf")
+mesh = SubResource("BoxMesh_vunq7")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+shape = SubResource("BoxShape3D_ksxi4")

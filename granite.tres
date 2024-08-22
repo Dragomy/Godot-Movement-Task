@@ -1,0 +1,20 @@
+[gd_resource type="StandardMaterial3D" load_steps=3 format=3 uid="uid://8fcnk63exatp"]
+
+[ext_resource type="Texture2D" uid="uid://bwbjhct0u3e1t" path="res://assets/tex_granite.png" id="1_hunxa"]
+[ext_resource type="Texture2D" uid="uid://ro7lsh50lews" path="res://assets/tex_test.png" id="2_bwd1q"]
+
+[resource]
+albedo_texture = ExtResource("1_hunxa")
+emission_texture = ExtResource("2_bwd1q")
+normal_scale = 1.36
+normal_texture = ExtResource("2_bwd1q")
+rim_texture = ExtResource("2_bwd1q")
+clearcoat_texture = ExtResource("2_bwd1q")
+heightmap_scale = -4.92
+heightmap_texture = ExtResource("2_bwd1q")
+subsurf_scatter_strength = 1.0
+subsurf_scatter_texture = ExtResource("2_bwd1q")
+detail_enabled = true
+detail_mask = ExtResource("2_bwd1q")
+detail_blend_mode = 1
+uv1_triplanar = true
