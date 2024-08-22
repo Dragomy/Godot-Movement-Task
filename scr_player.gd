@@ -26,6 +26,8 @@ var wobble_time := 0.0  # To keep track of time
 @export var crouchOn = true
 @export var slideOn = true
 
+
+
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	base_camera_height = camera.position.y  # Store the initial camera height
@@ -106,17 +108,22 @@ func crouch():
 var isSliding = false
 
 func slide():
-	if (slideOn == true):
-		if SPEED <= BASE_SPEED:
+	if slideOn && is_on_floor():
+		if velocity.length() <= BASE_SPEED:
 			isSliding = false
-			SPEED = BASE_SPEED
+			velocity = velocity.normalized() * BASE_SPEED
 		
-		if Input.is_action_pressed("move_crouch") && Input.is_action_pressed("move_fast") && isSliding == false:
-			isSliding = true
-			SPEED = SPEED*100
-		elif isSliding == true:
-			SPEED = SPEED*0.01
-	
+		if Input.is_action_pressed("move_crouch") and Input.is_action_pressed("move_fast"):
+			if not isSliding:
+				isSliding = true
+				velocity *= 4  # Multiply velocity to increase sliding speed
+		elif isSliding:
+			velocity *= 0.0001 # Gradually reduce the velocity, but keep the friction effect minimal
+
+		if velocity.length() <= BASE_SPEED:
+			isSliding = false
+			velocity = velocity.normalized() * BASE_SPEED
+
 func run():
 	if is_on_floor():
 		if Input.is_action_pressed("move_fast"):
@@ -124,10 +131,16 @@ func run():
 		else:
 			SPEED = BASE_SPEED
 
+
+@onready var texture_node = $AnimatedSprite3D 
+
 func bump():
 	if !is_on_floor() && bumpOn == true:
 		if Input.is_action_just_pressed("move_bump"):
 			velocity.y = -100
+			texture_node.play()
+			
+			
 
 func tiltCamera(tiltAngle):
 	if tiltOn == true:

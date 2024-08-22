@@ -1,8 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://6ytyk46r6vid"]
+[gd_scene load_steps=13 format=3 uid="uid://6ytyk46r6vid"]
 
 [ext_resource type="Script" path="res://scr_player.gd" id="1_5a6ei"]
 [ext_resource type="Shader" path="res://sha_palettelock.gdshader" id="2_a4y8m"]
 [ext_resource type="Texture2D" uid="uid://ciniwg5opn2d6" path="res://assets/darkseed-16-1x.png" id="3_uk3bc"]
+[ext_resource type="Texture2D" uid="uid://ms1b2pucsf1h" path="res://assets/tex_slam.png" id="4_27uw6"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_65b2n"]
 shader = ExtResource("2_a4y8m")
@@ -11,6 +12,48 @@ shader_parameter/palette = ExtResource("3_uk3bc")
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_4q1n1"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_gcud0"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_617gk"]
+atlas = ExtResource("4_27uw6")
+region = Rect2(0, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5vhbn"]
+atlas = ExtResource("4_27uw6")
+region = Rect2(48, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2lla7"]
+atlas = ExtResource("4_27uw6")
+region = Rect2(0, 48, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0fqmi"]
+atlas = ExtResource("4_27uw6")
+region = Rect2(48, 48, 48, 48)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_ugx4l"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": null
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_617gk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5vhbn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2lla7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0fqmi")
+}, {
+"duration": 1.0,
+"texture": null
+}],
+"loop": false,
+"name": &"default",
+"speed": 30.0
+}]
 
 [node name="cha_player" type="CharacterBody3D"]
 script = ExtResource("1_5a6ei")
@@ -43,3 +86,11 @@ shape = SubResource("CapsuleShape3D_gcud0")
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.90261, -0.375663)
 fov = 90.0
+
+[node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="."]
+transform = Transform3D(5, 0, 0, 0, -2.18557e-07, -5, 0, 5, -2.18557e-07, 0, 0, 0)
+no_depth_test = true
+texture_filter = 2
+sprite_frames = SubResource("SpriteFrames_ugx4l")
+frame = 5
+frame_progress = 1.0
