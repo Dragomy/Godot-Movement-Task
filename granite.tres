@@ -1,20 +1,22 @@
 [gd_resource type="StandardMaterial3D" load_steps=3 format=3 uid="uid://8fcnk63exatp"]
 
 [ext_resource type="Texture2D" uid="uid://bwbjhct0u3e1t" path="res://assets/tex_granite.png" id="1_hunxa"]
-[ext_resource type="Texture2D" uid="uid://ro7lsh50lews" path="res://assets/tex_test.png" id="2_bwd1q"]
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_1noi5"]
+load_path = "res://.godot/imported/tex_test.png-1b297e8e89f5b226bb66d76a213521e0.ctex"
 
 [resource]
 albedo_texture = ExtResource("1_hunxa")
-emission_texture = ExtResource("2_bwd1q")
+emission_texture = SubResource("CompressedTexture2D_1noi5")
 normal_scale = 1.36
-normal_texture = ExtResource("2_bwd1q")
-rim_texture = ExtResource("2_bwd1q")
-clearcoat_texture = ExtResource("2_bwd1q")
+normal_texture = SubResource("CompressedTexture2D_1noi5")
+rim_texture = SubResource("CompressedTexture2D_1noi5")
+clearcoat_texture = SubResource("CompressedTexture2D_1noi5")
 heightmap_scale = -4.92
-heightmap_texture = ExtResource("2_bwd1q")
+heightmap_texture = SubResource("CompressedTexture2D_1noi5")
 subsurf_scatter_strength = 1.0
-subsurf_scatter_texture = ExtResource("2_bwd1q")
+subsurf_scatter_texture = SubResource("CompressedTexture2D_1noi5")
 detail_enabled = true
-detail_mask = ExtResource("2_bwd1q")
+detail_mask = SubResource("CompressedTexture2D_1noi5")
 detail_blend_mode = 1
 uv1_triplanar = true

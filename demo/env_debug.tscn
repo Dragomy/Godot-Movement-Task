@@ -23,12 +23,17 @@ transform = Transform3D(0.0200525, 0, 0.999799, 0, 1, 0, -0.999799, 0, 0.0200525
 billboard = 2
 text = "Light"
 
-[node name="OmniLight3D2" type="OmniLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8578, -22.4349)
+[node name="OmniLight3D" type="OmniLight3D" parent="Label3D"]
+transform = Transform3D(0.0200525, 0, -0.999799, 0, 1, 0, 0.999799, 0, 0.0200525, 0, -0.4711, 0)
 light_energy = 3.0
 
-[node name="OmniLight3D" type="OmniLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4289, 0)
+[node name="Label3D2" type="Label3D" parent="."]
+transform = Transform3D(0.0200525, 0, 0.999799, 0, 1, 0, -0.999799, 0, 0.0200525, 0, 4.54476, -22.1006)
+billboard = 2
+text = "Light"
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Label3D2"]
+transform = Transform3D(0.0200525, 0, -0.999799, 0, 1, 0, 0.999799, 0, 0.0200525, 0, -0.4711, 0)
 light_energy = 3.0
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]

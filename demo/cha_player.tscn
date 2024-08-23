@@ -1,6 +1,6 @@
 [gd_scene load_steps=13 format=3 uid="uid://6ytyk46r6vid"]
 
-[ext_resource type="Script" path="res://scr_player.gd" id="1_5a6ei"]
+[ext_resource type="Script" path="res://scr_player.gd" id="1_5t4t2"]
 [ext_resource type="Shader" path="res://sha_palettelock.gdshader" id="2_a4y8m"]
 [ext_resource type="Texture2D" uid="uid://ciniwg5opn2d6" path="res://assets/darkseed-16-1x.png" id="3_uk3bc"]
 [ext_resource type="Texture2D" uid="uid://ms1b2pucsf1h" path="res://assets/tex_slam.png" id="4_27uw6"]
@@ -56,7 +56,7 @@ animations = [{
 }]
 
 [node name="cha_player" type="CharacterBody3D"]
-script = ExtResource("1_5a6ei")
+script = ExtResource("1_5t4t2")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
