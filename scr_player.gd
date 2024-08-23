@@ -4,9 +4,9 @@ extends CharacterBody3D
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 #Movement: Walking
-const BASE_SPEED = 10
+const BASE_SPEED = 5
 var CURRENT_SPEED = BASE_SPEED
-var MAX_SPEED = 40
+var MAX_SPEED = 20
 const ACCELERATION = 4.0
 
 #Movement: jumping
@@ -47,6 +47,15 @@ var slide_slowdown = 0.0001
 var dash_on = true
 var is_dashing = false
 
+#Movement: Option Wallslide
+var wallslide_on = true
+var is_wall_sliding = false
+var WallSlideGravity = gravity / 1.7
+
+#Movement: Option Walljump
+var walljump_on = true
+var WallJumpPushBack = 10
+
 func _ready():
 	#Capture Mouse Movement
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
@@ -79,6 +88,7 @@ func _process(_delta):
 	slide()
 	groundslam()
 	dash()
+	
 
 func _physics_process(delta):
 	# Add gravity
@@ -89,7 +99,8 @@ func _physics_process(delta):
 	walk(delta)
 	tiltCamera()
 	wobbleCamera(delta,CURRENT_SPEED)
-	
+	wallslide(delta)
+	walljump()
 	move_and_slide()
 	
 #Handle Walking
@@ -191,3 +202,27 @@ func dash():
 			CURRENT_SPEED = BASE_SPEED
 		elif is_on_floor(): 
 			is_dashing = false
+
+func wallslide(delta):
+	if walljump_on:
+		if is_on_wall() and not is_on_floor():
+			if Input.is_action_pressed("move_left") or Input.is_action_pressed("move_right"):
+				is_wall_sliding = true
+			else:
+				is_wall_sliding = false
+		else:
+			is_wall_sliding = false
+			
+		if is_wall_sliding:
+			velocity.y += (WallSlideGravity * delta)
+			velocity.y = min(velocity.y, WallSlideGravity)
+
+func walljump():
+	if walljump_on:
+		if is_wall_sliding and Input.is_action_pressed("move_jump"):
+			velocity.y += JUMP_VELOCITY
+			if Input.is_action_pressed("move_left"):
+				velocity.x += WallJumpPushBack
+			if Input.is_action_pressed("move_right"):
+				velocity.x += -WallJumpPushBack
+		
