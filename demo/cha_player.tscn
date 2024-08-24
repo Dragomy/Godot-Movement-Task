@@ -80,15 +80,29 @@ mouse_force_pass_scroll_events = false
 metadata/_edit_use_anchors_ = true
 
 [node name="Velocity" type="Label" parent="CanvasLayer"]
+offset_top = -64.0
 offset_right = 61.0
-offset_bottom = 23.0
+offset_bottom = -41.0
 text = "Velocity"
 
 [node name="Speed" type="Label" parent="CanvasLayer"]
-offset_top = 24.0
-offset_right = 61.0
-offset_bottom = 47.0
+offset_left = 8.0
+offset_top = 456.0
+offset_right = 69.0
+offset_bottom = 479.0
 text = "Speed"
+
+[node name="Respawn" type="Label" parent="CanvasLayer"]
+offset_left = 480.0
+offset_right = 641.0
+offset_bottom = 23.0
+text = "Press \"R\" to respawn"
+
+[node name="Time" type="Label" parent="CanvasLayer"]
+offset_left = 8.0
+offset_right = 48.0
+offset_bottom = 23.0
+text = "Time"
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.16469, 0)

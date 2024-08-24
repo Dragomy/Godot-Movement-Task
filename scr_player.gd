@@ -39,7 +39,7 @@ var crouch_on = true
 
 #Movement: Option Slide
 var slide_on = true
-var isSliding = false
+var is_sliding = false
 var slide_speed = MAX_SPEED * 2
 var slide_slowdown = 1.01
 
@@ -58,9 +58,12 @@ var WallJumpPushBack = CURRENT_SPEED
 
 @onready var velocity_label = $CanvasLayer/Velocity
 @onready var speed_label = $CanvasLayer/Speed
+@onready var time_label: Label = $CanvasLayer/Time 
+var elapsed_time: float = 0.0
+var timer_active: bool = false
 
 func _ready():
-	
+	timer_active = true
 	#Capture Mouse Movement
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	# Store the initial camera height
@@ -75,9 +78,7 @@ func _unhandled_input(event):
 		camera.rotation.x = clamp(camera.rotation.x, deg_to_rad(-80), deg_to_rad(87))
 
 func _process(_delta):
-	# Close game on ui_escape (Here Shift+ESC)
-	if Input.is_action_just_pressed("ui_escape"):
-		get_tree().quit()
+	
 	
 	# Handle camera on controller
 	var look_right = Input.get_action_strength("look_right") - Input.get_action_strength("look_left")
@@ -86,15 +87,22 @@ func _process(_delta):
 	rotate_y(-look_right * controller_sensitivity)
 	camera.rotate_x(-look_up * controller_sensitivity)
 	camera.rotation.x = clamp(camera.rotation.x, deg_to_rad(-80), deg_to_rad(87))
-
+	
 
 func _physics_process(delta):
+	# Close game on ui_escape (Here Shift+ESC)
+	if Input.is_action_just_pressed("ui_escape"):
+		get_tree().quit()
+		
 	velocity_label.text = "Velocity: " + var_to_str(velocity)
-	speed_label.text = "Current Speed: " + var_to_str(CURRENT_SPEED)
+	speed_label.text =var_to_str(CURRENT_SPEED) + "m/s"
 	# Add gravity
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 		
+	update_elapsed_time(delta)
+	respawn()
+	
 	walk(delta)
 	jump()
 	run()
@@ -104,11 +112,25 @@ func _physics_process(delta):
 	dash()
 	wallslide(delta)
 	walljump()
-	#CAMERA
 	tiltCamera()
 	wobbleCamera(delta,CURRENT_SPEED)
 	
 	move_and_slide()
+
+func stop_timer() -> void:
+	timer_active = false 
+
+func update_elapsed_time(delta: float) -> void:
+	if timer_active:
+		elapsed_time += delta
+		time_label.text = "Time: %.2f seconds" % elapsed_time
+
+func respawn():
+	if Input.is_action_just_pressed("respawn"):
+		global_transform.origin = Vector3(0, 0, 0)
+		velocity = Vector3.ZERO 
+		elapsed_time = 0
+		timer_active = true
 
 func walk(delta):
 	# Get the input direction and handle the movement/deceleration
@@ -164,17 +186,19 @@ func crouch():
 			CURRENT_SPEED = BASE_SPEED
 			is_running = false
 
+
 func slide():
 	if slide_on:
 		if Input.is_action_pressed("move_fast") && Input.is_action_just_pressed("move_slide"):
-			if !isSliding:
-				isSliding = true
+			if !is_sliding:
+				is_sliding = true
 				CURRENT_SPEED = slide_speed
-		elif Input.is_action_pressed("move_fast") && Input.is_action_pressed("move_slide") && isSliding:
+				
+		elif Input.is_action_pressed("move_fast") && Input.is_action_pressed("move_slide") && is_sliding:
 			CURRENT_SPEED = CURRENT_SPEED / slide_slowdown
-		elif Input.is_action_just_released("move_crouch"):
-			isSliding = false
-			velocity = velocity.normalized() * BASE_SPEED
+		elif is_sliding && is_on_floor():
+			is_sliding = false
+			
 
 var is_groundslaming = false
 func groundslam():
@@ -191,6 +215,9 @@ func dash():
 	if (dash_on == true):
 		if Input.is_action_just_pressed("move_dash") && !is_on_floor() && !is_dashing:
 			CURRENT_SPEED *= 4
+			is_dashing = true
+		elif Input.is_action_just_pressed("move_dash") && !is_on_floor() && !is_dashing && is_sliding:
+			CURRENT_SPEED *= 8
 			is_dashing = true
 		elif !is_on_floor() && is_dashing:
 			CURRENT_SPEED = CURRENT_SPEED / 1.05
