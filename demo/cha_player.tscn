@@ -9,9 +9,13 @@
 shader = ExtResource("2_a4y8m")
 shader_parameter/palette = ExtResource("3_uk3bc")
 
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_4q1n1"]
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_c7yfv"]
+radius = 0.3
+height = 1.8
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_gcud0"]
+radius = 0.3
+height = 1.8
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_617gk"]
 atlas = ExtResource("4_27uw6")
@@ -52,7 +56,7 @@ animations = [{
 }],
 "loop": false,
 "name": &"default",
-"speed": 30.0
+"speed": 60.0
 }]
 
 [node name="cha_player" type="CharacterBody3D"]
@@ -75,16 +79,27 @@ mouse_filter = 2
 mouse_force_pass_scroll_events = false
 metadata/_edit_use_anchors_ = true
 
+[node name="Velocity" type="Label" parent="CanvasLayer"]
+offset_right = 61.0
+offset_bottom = 23.0
+text = "Velocity"
+
+[node name="Speed" type="Label" parent="CanvasLayer"]
+offset_top = 24.0
+offset_right = 61.0
+offset_bottom = 47.0
+text = "Speed"
+
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.16469, 0)
-mesh = SubResource("CapsuleMesh_4q1n1")
+mesh = SubResource("CapsuleMesh_c7yfv")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1682, 0)
 shape = SubResource("CapsuleShape3D_gcud0")
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.90261, -0.375663)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.90261, -0.218439)
 fov = 90.0
 
 [node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="."]
