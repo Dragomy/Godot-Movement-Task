@@ -64,6 +64,9 @@ var WallJumpPushBack = CURRENT_SPEED
 var elapsed_time: float = 0.0
 var timer_active: bool = false
 
+@onready var LEFT = $RayCastLeft
+@onready var RIGHT = $RayCastRight
+
 func _ready():
 	timer_active = true
 	#Capture Mouse Movement
@@ -113,11 +116,13 @@ func _physics_process(delta):
 	groundslam()
 	dash()
 	wallslide(delta)
-	walljump()
 	tiltCamera()
 	wobbleCamera(delta,CURRENT_SPEED)
 	
 	move_and_slide()
+
+
+
 
 func stop_timer() -> void:
 	timer_active = false 
@@ -230,26 +235,26 @@ func dash():
 		elif is_on_floor() && is_dashing: 
 			is_dashing = false
 			CURRENT_SPEED = MAX_SPEED
+			
 
+			
 func wallslide(delta):
 	if walljump_on:
-		if is_on_wall() && !is_on_floor():
-			# Sepperated for Camera animation not jet implemented
-			if Input.is_action_pressed("move_left"):
-				is_wall_sliding = true
-				velocity.y = -0.8
-			elif Input.is_action_pressed("move_right"):
-				is_wall_sliding = true
-				velocity.y = -0.8
-			else:
+		if ( LEFT.is_colliding() || RIGHT.is_colliding() ) && !is_on_floor():
+			velocity.y = -0.8
+			is_wall_sliding = true
+			if Input.is_action_pressed("move_right") && LEFT.is_colliding():
+				velocity *= 3
+				velocity.y += JUMP_VELOCITY #* 2
 				is_wall_sliding = false
-		else:
-			is_wall_sliding = false
-
-func walljump():
-	if walljump_on:
-		if is_wall_sliding and Input.is_action_pressed("move_jump"):
-			velocity.y += JUMP_VELOCITY
+			elif Input.is_action_pressed("move_left") && RIGHT.is_colliding():
+				velocity *= 3
+				velocity.y += JUMP_VELOCITY #* 2
+				is_wall_sliding = false
+			elif Input.is_action_pressed("move_jump"):
+				velocity.y += JUMP_VELOCITY
+				is_wall_sliding = false
+		else: is_wall_sliding = false
 
 # CAMERA 
 func tiltCamera():
@@ -258,9 +263,13 @@ func tiltCamera():
 			camera.rotation_degrees.z = tilt_angle
 		elif Input.is_action_pressed("move_right"):
 			camera.rotation_degrees.z = -tilt_angle
+		elif LEFT.is_colliding() && is_wall_sliding:
+			camera.rotation_degrees.z = -tilt_angle * 4
+		elif RIGHT.is_colliding() && is_wall_sliding:
+			camera.rotation_degrees.z = tilt_angle * 4
 		else:
 			camera.rotation_degrees.z = 0
-
+		
 func wobbleCamera(delta: float, player_speed: float):
 	if is_on_floor() && wobble_on == true:
 		if Input.is_action_pressed("move_forward") || Input.is_action_pressed("move_backward") || Input.is_action_pressed("move_left") || Input.is_action_pressed("move_right"):

@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://fy1bqgwt7u6e"]
+[gd_scene load_steps=20 format=3 uid="uid://fy1bqgwt7u6e"]
 
 [ext_resource type="Script" path="res://demo/scr_env_debug.gd" id="1_j483d"]
 [ext_resource type="PackedScene" uid="uid://6ytyk46r6vid" path="res://demo/cha_player.tscn" id="2_hoij1"]
@@ -44,6 +44,15 @@ size = Vector3(40, 1, 10)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_8c05d"]
 size = Vector3(10, 10, 10)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_lybsi"]
+top_radius = 10.0
+bottom_radius = 10.0
+height = 10.0
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_fi2uc"]
+height = 10.0
+radius = 10.0
 
 [node name="env_debug" type="Node3D"]
 script = ExtResource("1_j483d")
@@ -202,3 +211,13 @@ shape = SubResource("BoxShape3D_8c05d")
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 2.58369, 0)
 billboard = 2
 text = "FINISH"
+
+[node name="Area3D" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.3395, 2.09893, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Area3D"]
+material_override = ExtResource("2_trlxf")
+mesh = SubResource("CylinderMesh_lybsi")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+shape = SubResource("CylinderShape3D_fi2uc")
