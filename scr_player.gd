@@ -66,6 +66,8 @@ var timer_active: bool = false
 
 @onready var LEFT = $RayCastLeft
 @onready var RIGHT = $RayCastRight
+var is_running = false
+var is_groundslaming = false
 
 func _ready():
 	timer_active = true
@@ -83,8 +85,6 @@ func _unhandled_input(event):
 		camera.rotation.x = clamp(camera.rotation.x, deg_to_rad(-80), deg_to_rad(87))
 
 func _process(_delta):
-	
-	
 	# Handle camera on controller
 	var look_right = Input.get_action_strength("look_right") - Input.get_action_strength("look_left")
 	var look_up = Input.get_action_strength("look_up") - Input.get_action_strength("look_down")
@@ -92,7 +92,6 @@ func _process(_delta):
 	rotate_y(-look_right * controller_sensitivity)
 	camera.rotate_x(-look_up * controller_sensitivity)
 	camera.rotation.x = clamp(camera.rotation.x, deg_to_rad(-80), deg_to_rad(87))
-	
 
 func _physics_process(delta):
 	# Close game on ui_escape (Here Shift+ESC)
@@ -120,9 +119,6 @@ func _physics_process(delta):
 	wobbleCamera(delta,CURRENT_SPEED)
 	
 	move_and_slide()
-
-
-
 
 func stop_timer() -> void:
 	timer_active = false 
@@ -165,7 +161,6 @@ func walk(delta):
 	velocity = velocity.lerp(direction * CURRENT_SPEED, ACCELERATION * delta)
 	velocity.y = y_velocity
 
-
 func jump():
 	if Input.is_action_just_pressed("move_jump") && jump_count < max_jumps:
 		jump_count += 1
@@ -173,7 +168,6 @@ func jump():
 	elif is_on_floor():
 		jump_count = 0
 
-var is_running = false
 func run():
 	if is_on_floor():
 		if Input.is_action_pressed("move_fast") && CURRENT_SPEED < MAX_SPEED && !is_running:
@@ -197,7 +191,6 @@ func crouch():
 			CURRENT_SPEED = BASE_SPEED
 			is_running = false
 
-
 func slide():
 	if slide_on:
 		if Input.is_action_pressed("move_fast") && Input.is_action_just_pressed("move_slide"):
@@ -205,13 +198,11 @@ func slide():
 				is_sliding = true
 				CURRENT_SPEED = slide_speed
 				
-		elif Input.is_action_pressed("move_fast") && Input.is_action_pressed("move_slide") && is_sliding:
+		elif Input.is_action_pressed("move_fast") && Input.is_action_pressed("move_slide") && is_sliding && CURRENT_SPEED > BASE_SPEED:
 			CURRENT_SPEED = CURRENT_SPEED / slide_slowdown
 		elif is_sliding && is_on_floor():
 			is_sliding = false
-			
 
-var is_groundslaming = false
 func groundslam():
 	# If the jump youre to high above ground the animation will play mid air only fix when someone notices :) or tomorrow
 	if !is_on_floor() && bump_on == true:
@@ -230,14 +221,15 @@ func dash():
 		elif Input.is_action_just_pressed("move_dash") && !is_on_floor() && !is_dashing && is_sliding:
 			CURRENT_SPEED *= 8
 			is_dashing = true
-		elif !is_on_floor() && is_dashing:
+		elif !is_on_floor() && is_dashing && CURRENT_SPEED > BASE_SPEED:
 			CURRENT_SPEED = CURRENT_SPEED / 1.05
-		elif is_on_floor() && is_dashing: 
+		elif is_on_floor() && is_dashing && Input.is_action_pressed("move_fast"): 
 			is_dashing = false
 			CURRENT_SPEED = MAX_SPEED
-			
+		elif is_on_floor() && is_dashing: 
+			is_dashing = false
+			CURRENT_SPEED = BASE_SPEED
 
-			
 func wallslide(delta):
 	if walljump_on:
 		if ( LEFT.is_colliding() || RIGHT.is_colliding() ) && !is_on_floor():
@@ -254,9 +246,9 @@ func wallslide(delta):
 			elif Input.is_action_pressed("move_jump"):
 				velocity.y += JUMP_VELOCITY
 				is_wall_sliding = false
-		else: is_wall_sliding = false
+		else: 
+			is_wall_sliding = false
 
-# CAMERA 
 func tiltCamera():
 	if tilt_on == true:
 		if Input.is_action_pressed("move_left"):
@@ -269,7 +261,7 @@ func tiltCamera():
 			camera.rotation_degrees.z = tilt_angle * 4
 		else:
 			camera.rotation_degrees.z = 0
-		
+
 func wobbleCamera(delta: float, player_speed: float):
 	if is_on_floor() && wobble_on == true:
 		if Input.is_action_pressed("move_forward") || Input.is_action_pressed("move_backward") || Input.is_action_pressed("move_left") || Input.is_action_pressed("move_right"):
