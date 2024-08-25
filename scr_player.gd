@@ -11,6 +11,8 @@ const ACCELERATION = 10
 
 #Movement: jumping
 const JUMP_VELOCITY = 10
+var max_jumps = 3
+var jump_count
 
 #Camera: Input
 var mouse_sensitivity = 0.006
@@ -158,9 +160,13 @@ func walk(delta):
 	velocity = velocity.lerp(direction * CURRENT_SPEED, ACCELERATION * delta)
 	velocity.y = y_velocity
 
+
 func jump():
-	if Input.is_action_just_pressed("move_jump") and is_on_floor():
+	if Input.is_action_just_pressed("move_jump") && jump_count < max_jumps:
+		jump_count += 1
 		velocity.y = JUMP_VELOCITY
+	elif is_on_floor():
+		jump_count = 0
 
 var is_running = false
 func run():
@@ -223,7 +229,7 @@ func dash():
 			CURRENT_SPEED = CURRENT_SPEED / 1.05
 		elif is_on_floor() && is_dashing: 
 			is_dashing = false
-			CURRENT_SPEED = BASE_SPEED
+			CURRENT_SPEED = MAX_SPEED
 
 func wallslide(delta):
 	if walljump_on:
