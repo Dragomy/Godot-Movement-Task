@@ -280,12 +280,15 @@ func wait(seconds: float) -> void:
 	await get_tree().create_timer(seconds).timeout
 
 @onready var syringe = $Camera3D/ObjSyringe
+var on_drugs = false 
 
 func drugs():
-	if Input.is_action_just_pressed("action_syringe"):
+	if Input.is_action_just_pressed("action_syringe") && !on_drugs:
+		on_drugs = true
 		syringe.show()
 		var save = CURRENT_SPEED
 		CURRENT_SPEED = CURRENT_SPEED * 2
 		await get_tree().create_timer(5.0).timeout
 		syringe.hide()
 		CURRENT_SPEED = save
+		on_drugs = false
