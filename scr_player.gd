@@ -71,6 +71,7 @@ var is_groundslaming = false
 
 func _ready():
 	timer_active = true
+	syringe.hide()
 	#Capture Mouse Movement
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	# Store the initial camera height
@@ -106,7 +107,7 @@ func _physics_process(delta):
 		
 	update_elapsed_time(delta)
 	respawn()
-	
+	drugs()
 	walk(delta)
 	jump()
 	run()
@@ -274,3 +275,17 @@ func wobbleCamera(delta: float, player_speed: float):
 			camera.position.y = base_camera_height
 			# Reset wobble time
 			wobble_time = 0.0  
+
+func wait(seconds: float) -> void:
+	await get_tree().create_timer(seconds).timeout
+
+@onready var syringe = $Camera3D/ObjSyringe
+
+func drugs():
+	if Input.is_action_just_pressed("action_syringe"):
+		syringe.show()
+		var save = CURRENT_SPEED
+		CURRENT_SPEED = CURRENT_SPEED * 2
+		await get_tree().create_timer(5.0).timeout
+		syringe.hide()
+		CURRENT_SPEED = save

@@ -1,0 +1,22 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://d11252tmxwx0e"
+path="res://.godot/imported/obj_syringe.obj-be29295ad07a20a525af4c3f880ba252.mesh"
+
+[deps]
+
+files=["res://.godot/imported/obj_syringe.obj-be29295ad07a20a525af4c3f880ba252.mesh"]
+
+source_file="res://assets/obj_syringe.obj"
+dest_files=["res://.godot/imported/obj_syringe.obj-be29295ad07a20a525af4c3f880ba252.mesh", "res://.godot/imported/obj_syringe.obj-be29295ad07a20a525af4c3f880ba252.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true
+force_disable_mesh_compression=false
