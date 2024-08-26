@@ -1,73 +1,53 @@
 extends CharacterBody3D
 
-#Envoirenment: Physics
-var gravity = 9.81 * 2
+#- @onready ----------
+@onready var camera = $Camera3D
+@onready var slam_animation = $AnimatedSprite3D 
+@onready var velocity_label = $CanvasLayer/Velocity
+@onready var speed_label = $CanvasLayer/Speed
+@onready var time_label: Label = $CanvasLayer/Time 
+@onready var ray_left = $RayCastLeft
+@onready var ray_right = $RayCastRight
+@onready var syringe = $Camera3D/ObjSyringe
 
-#Movement: Walking
-const BASE_SPEED = 8
-var CURRENT_SPEED = BASE_SPEED
-const MAX_SPEED = 16.5
-const ACCELERATION = 10
+#- const ----------
+const gravity = 9.81 * 2
+const BASE_SPEED = 8.0
+#const MAX_SPEED = 16.0
+const ACCELERATION = 10.0
+const JUMP_VELOCITY = 10.0
+const max_jumps = 3
 
-#Movement: jumping
-const JUMP_VELOCITY = 10
-var max_jumps = 3
-var jump_count
+#- var: boolean ----------
+var timer_active: bool = false
 
-#Camera: Input
+var tilt_on: bool = true
+var wobble_on: bool = true
+
+var is_sliding: bool = false
+var is_dashing: bool = false
+var is_wall_sliding: bool = false
+var is_running: bool = false
+var is_groundslaming: bool = false
+var is_on_drugs: bool = false 
+
+#- var: float -------
+var current_speed = BASE_SPEED
+
 var mouse_sensitivity = 0.006
 var controller_sensitivity = 0.03
-@onready var camera = $Camera3D
 
-#Camera: Option Tilt
-var tilt_angle = 1.9
-var tilt_on = true
-
-#Camera: Option Wobble
-#The camera is moved up and down like a sinewave
-var wobble_on = true
 var wobble_amplitude := 0.03  # Maximum height of the wobble
 var wobble_base_speed := 5.0  # Base speed of the wobble
 var base_camera_height := 0.0  # To store the camera's initial Y position
 var wobble_time := 0.0  # To keep track of time
 
-#Movement: Option Ground Slam
-var bump_on = true
-var down_force = gravity * 100
-@onready var slam_animation = $AnimatedSprite3D 
-
-#Movement: Option Crouch
-var crouch_on = true
-
-#Movement: Option Slide
-var slide_on = true
-var is_sliding = false
-var slide_speed = MAX_SPEED * 2
+var jump_count
+var tilt_angle = 1.9
 var slide_slowdown = 1.01
+var elapsed_time = 0.0
 
-#Movement: Option Dash
-var dash_on = true
-var is_dashing = false
 
-#Movement: Option Wallslide
-var wallslide_on = true
-var is_wall_sliding = false
-var WallSlideGravity = gravity
-
-#Movement: Option Walljump
-var walljump_on = true
-var WallJumpPushBack = CURRENT_SPEED
-
-@onready var velocity_label = $CanvasLayer/Velocity
-@onready var speed_label = $CanvasLayer/Speed
-@onready var time_label: Label = $CanvasLayer/Time 
-var elapsed_time: float = 0.0
-var timer_active: bool = false
-
-@onready var LEFT = $RayCastLeft
-@onready var RIGHT = $RayCastRight
-var is_running = false
-var is_groundslaming = false
 
 func _ready():
 	timer_active = true
@@ -93,6 +73,7 @@ func _process(_delta):
 	rotate_y(-look_right * controller_sensitivity)
 	camera.rotate_x(-look_up * controller_sensitivity)
 	camera.rotation.x = clamp(camera.rotation.x, deg_to_rad(-80), deg_to_rad(87))
+	
 
 func _physics_process(delta):
 	# Close game on ui_escape (Here Shift+ESC)
@@ -100,27 +81,38 @@ func _physics_process(delta):
 		get_tree().quit()
 		
 	velocity_label.text = "Velocity: " + var_to_str(velocity)
-	speed_label.text =var_to_str(CURRENT_SPEED) + "m/s"
+	speed_label.text =var_to_str(current_speed) + "m/s"
 	# Add gravity
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 		
+	#- Time ---------
 	update_elapsed_time(delta)
+	
+	#- Respawn ----------
 	respawn()
-	drugs()
+	
+	#- Movement ----------
 	walk(delta)
-	jump()
 	run()
+	jump()
 	crouch()
 	slide()
 	groundslam()
 	dash()
-	wallslide(delta)
+	wallrun(delta)
+	drugs()
+	
+	#- Camera ----------
 	tiltCamera()
-	wobbleCamera(delta,CURRENT_SPEED)
+	wobbleCamera(delta,current_speed)
+	
 	
 	move_and_slide()
 
+
+
+#- Time ----------
 func stop_timer() -> void:
 	timer_active = false 
 
@@ -129,13 +121,19 @@ func update_elapsed_time(delta: float) -> void:
 		elapsed_time += delta
 		time_label.text = "Time: %.2f seconds" % elapsed_time
 
+
+
+#- Respwan ----------
 func respawn():
 	if Input.is_action_just_pressed("respawn"):
 		global_transform.origin = Vector3(0, 0, 0)
 		velocity = Vector3.ZERO 
 		elapsed_time = 0
-		timer_active = true
+		timer_active = true #Reset timer on respawn
 
+
+
+#- Movement ----------
 func walk(delta):
 	# Get the input direction and handle the movement/deceleration
 	var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
@@ -154,13 +152,23 @@ func walk(delta):
 		# Apply movement
 		pass
 	else:
-		velocity.x = move_toward(velocity.x, 0, CURRENT_SPEED)
-		velocity.z = move_toward(velocity.z, 0, CURRENT_SPEED)
+		velocity.x = move_toward(velocity.x, 0, current_speed)
+		velocity.z = move_toward(velocity.z, 0, current_speed)
 	
 	var y_velocity = velocity.y
 	velocity.y = 0.0
-	velocity = velocity.lerp(direction * CURRENT_SPEED, ACCELERATION * delta)
+	velocity = velocity.lerp(direction * current_speed, ACCELERATION * delta)
 	velocity.y = y_velocity
+	
+var can_run = true
+func run():
+	if can_run && !is_crouching:
+		if Input.is_action_pressed("move_fast"):
+			is_running = true
+			current_speed = BASE_SPEED * 2
+		elif Input.is_action_just_released("move_fast"):
+			is_running = false
+			current_speed = BASE_SPEED
 
 func jump():
 	if Input.is_action_just_pressed("move_jump") && jump_count < max_jumps:
@@ -169,44 +177,47 @@ func jump():
 	elif is_on_floor():
 		jump_count = 0
 
-func run():
-	if is_on_floor():
-		if Input.is_action_pressed("move_fast") && CURRENT_SPEED < MAX_SPEED && !is_running:
-			is_running = true
-			CURRENT_SPEED = MAX_SPEED
-	if Input.is_action_just_released("move_fast"):
-		is_running = false
-		CURRENT_SPEED = BASE_SPEED
-
 #You cant run while Crouched so is_running is set to true this disables running
 #Crouching Halfves the current speed sliding boosts the player fowards for a short duration
+var save_crouch_input_speed
+var is_crouching = false
 func crouch():
-	if crouch_on:
-		if Input.is_action_just_pressed("move_crouch"):
-			scale.y = 0.5
-			CURRENT_SPEED = CURRENT_SPEED / 2
-		elif Input.is_action_pressed("move_crouch"):
-			is_running = true
-		elif Input.is_action_just_released("move_crouch"):
-			scale.y = 1
-			CURRENT_SPEED = BASE_SPEED
-			is_running = false
-
+	if Input.is_action_just_pressed("move_crouch") && !is_running && !is_crouching:
+		is_crouching = true
+		scale.y = 0.5
+		save_crouch_input_speed = current_speed
+		current_speed = current_speed / 2
+	elif Input.is_action_just_pressed("move_crouch") && Input.is_action_just_pressed("move_fast"):
+		scale.y = 1
+		current_speed = save_crouch_input_speed
+		is_crouching = false
+	elif Input.is_action_just_released("move_crouch") && is_crouching:
+		scale.y = 1
+		current_speed = save_crouch_input_speed
+		is_crouching = false
+		
+var save_slide_input_speed
 func slide():
-	if slide_on:
-		if Input.is_action_pressed("move_fast") && Input.is_action_just_pressed("move_slide"):
-			if !is_sliding:
-				is_sliding = true
-				CURRENT_SPEED = slide_speed
-				
-		elif Input.is_action_pressed("move_fast") && Input.is_action_pressed("move_slide") && is_sliding && CURRENT_SPEED > BASE_SPEED:
-			CURRENT_SPEED = CURRENT_SPEED / slide_slowdown
-		elif is_sliding && is_on_floor():
-			is_sliding = false
-
+	if Input.is_action_just_pressed("move_slide") && Input.is_action_pressed("move_fast") && !is_sliding && is_running:
+		save_slide_input_speed = current_speed
+		is_sliding = true
+		can_run = false
+		scale.y = 0.5
+		current_speed = current_speed * 1.5
+	elif Input.is_action_pressed("move_slide") && Input.is_action_pressed("move_fast") && is_sliding && current_speed > save_slide_input_speed:
+		#await get_tree().create_timer(0.5).timeout
+		current_speed -= 0.5
+		
+	elif (Input.is_action_just_released("move_slide") || Input.is_action_just_released("move_fast")) && is_sliding:
+		
+		scale.y = 1
+		current_speed = save_slide_input_speed
+		is_sliding = false
+		can_run = true
+		
 func groundslam():
 	# If the jump youre to high above ground the animation will play mid air only fix when someone notices :) or tomorrow
-	if !is_on_floor() && bump_on == true:
+	if !is_on_floor():
 		if Input.is_action_just_pressed("move_bump"):
 			is_groundslaming = true
 			velocity.y = -100
@@ -215,32 +226,21 @@ func groundslam():
 		slam_animation.play()
 
 func dash():
-	if (dash_on == true):
-		if Input.is_action_just_pressed("move_dash") && !is_on_floor() && !is_dashing:
-			CURRENT_SPEED *= 4
-			is_dashing = true
-		elif Input.is_action_just_pressed("move_dash") && !is_on_floor() && !is_dashing && is_sliding:
-			CURRENT_SPEED *= 8
-			is_dashing = true
-		elif !is_on_floor() && is_dashing && CURRENT_SPEED > BASE_SPEED:
-			CURRENT_SPEED = CURRENT_SPEED / 1.05
-		elif is_on_floor() && is_dashing && Input.is_action_pressed("move_fast"): 
-			is_dashing = false
-			CURRENT_SPEED = MAX_SPEED
-		elif is_on_floor() && is_dashing: 
-			is_dashing = false
-			CURRENT_SPEED = BASE_SPEED
+	if Input.is_action_just_pressed("move_dash") && !is_on_floor() && !is_dashing:
+		velocity = Vector3(velocity.x * (current_speed / 2),0,velocity.z * (current_speed / 2))
+		is_dashing = true
+	elif is_dashing && is_on_floor():
+		is_dashing = false
 
-func wallslide(delta):
-	if walljump_on:
-		if ( LEFT.is_colliding() || RIGHT.is_colliding() ) && !is_on_floor():
+func wallrun(delta):
+		if ( ray_left.is_colliding() || ray_right.is_colliding() ) && !is_on_floor():
 			velocity.y = -0.8
 			is_wall_sliding = true
-			if Input.is_action_pressed("move_right") && LEFT.is_colliding():
+			if Input.is_action_pressed("move_right") && ray_left.is_colliding():
 				velocity *= 3
 				velocity.y += JUMP_VELOCITY #* 2
 				is_wall_sliding = false
-			elif Input.is_action_pressed("move_left") && RIGHT.is_colliding():
+			elif Input.is_action_pressed("move_left") && ray_right.is_colliding():
 				velocity *= 3
 				velocity.y += JUMP_VELOCITY #* 2
 				is_wall_sliding = false
@@ -249,16 +249,31 @@ func wallslide(delta):
 				is_wall_sliding = false
 		else: 
 			is_wall_sliding = false
+			
+func drugs():
+	if Input.is_action_just_pressed("action_syringe") && !is_on_drugs:
+		is_on_drugs = true
+		can_run = false
+		syringe.show()
+		var save = current_speed
+		current_speed = current_speed * 2
+		await get_tree().create_timer(5.0).timeout
+		syringe.hide()
+		current_speed = save
+		is_on_drugs = false
+		can_run = true
+		
 
+#- Camera ----------
 func tiltCamera():
 	if tilt_on == true:
 		if Input.is_action_pressed("move_left"):
 			camera.rotation_degrees.z = tilt_angle
 		elif Input.is_action_pressed("move_right"):
 			camera.rotation_degrees.z = -tilt_angle
-		elif LEFT.is_colliding() && is_wall_sliding:
+		elif ray_left.is_colliding() && is_wall_sliding:
 			camera.rotation_degrees.z = -tilt_angle * 4
-		elif RIGHT.is_colliding() && is_wall_sliding:
+		elif ray_right.is_colliding() && is_wall_sliding:
 			camera.rotation_degrees.z = tilt_angle * 4
 		else:
 			camera.rotation_degrees.z = 0
@@ -275,20 +290,3 @@ func wobbleCamera(delta: float, player_speed: float):
 			camera.position.y = base_camera_height
 			# Reset wobble time
 			wobble_time = 0.0  
-
-func wait(seconds: float) -> void:
-	await get_tree().create_timer(seconds).timeout
-
-@onready var syringe = $Camera3D/ObjSyringe
-var on_drugs = false 
-
-func drugs():
-	if Input.is_action_just_pressed("action_syringe") && !on_drugs:
-		on_drugs = true
-		syringe.show()
-		var save = CURRENT_SPEED
-		CURRENT_SPEED = CURRENT_SPEED * 2
-		await get_tree().create_timer(5.0).timeout
-		syringe.hide()
-		CURRENT_SPEED = save
-		on_drugs = false
