@@ -233,22 +233,22 @@ func dash():
 		is_dashing = false
 
 func wallrun(delta):
-		if ( ray_left.is_colliding() || ray_right.is_colliding() ) && !is_on_floor():
-			velocity.y = -0.8
-			is_wall_sliding = true
-			if Input.is_action_pressed("move_right") && ray_left.is_colliding():
-				velocity *= 3
-				velocity.y += JUMP_VELOCITY #* 2
-				is_wall_sliding = false
-			elif Input.is_action_pressed("move_left") && ray_right.is_colliding():
-				velocity *= 3
-				velocity.y += JUMP_VELOCITY #* 2
-				is_wall_sliding = false
-			elif Input.is_action_pressed("move_jump"):
-				velocity.y += JUMP_VELOCITY
-				is_wall_sliding = false
-		else: 
+	if ( ray_left.is_colliding() || ray_right.is_colliding() ) && !is_on_floor():
+		velocity.y = -0.8
+		is_wall_sliding = true
+		if Input.is_action_pressed("move_right") && ray_left.is_colliding():
+			velocity *= 3
+			velocity.y += JUMP_VELOCITY #* 2
 			is_wall_sliding = false
+		elif Input.is_action_pressed("move_left") && ray_right.is_colliding():
+			velocity *= 3
+			velocity.y += JUMP_VELOCITY #* 2
+			is_wall_sliding = false
+		elif Input.is_action_pressed("move_jump"):
+			velocity.y += JUMP_VELOCITY
+			is_wall_sliding = false
+	else: 
+		is_wall_sliding = false
 			
 func drugs():
 	if Input.is_action_just_pressed("action_syringe") && !is_on_drugs:
@@ -260,9 +260,9 @@ func drugs():
 		await get_tree().create_timer(5.0).timeout
 		syringe.hide()
 		current_speed = save
-		is_on_drugs = false
 		can_run = true
-		
+		await get_tree().create_timer(2.0).timeout
+		is_on_drugs = false
 
 #- Camera ----------
 func tiltCamera():
