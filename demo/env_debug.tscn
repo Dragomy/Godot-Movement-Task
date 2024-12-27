@@ -6,6 +6,8 @@
 
 [sub_resource type="Environment" id="Environment_qilpa"]
 background_mode = 1
+volumetric_fog_enabled = true
+volumetric_fog_albedo = Color(0, 0, 0, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_n263y"]
 size = Vector3(10, 1, 100)
@@ -78,7 +80,7 @@ transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 9.81747
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 39.6099)
 
 [node name="cha_player" parent="." instance=ExtResource("2_hoij1")]
-transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0)
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0.807077, 0)
 
 [node name="bottom" type="StaticBody3D" parent="."]
 
